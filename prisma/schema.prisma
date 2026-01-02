@@ -220,11 +220,16 @@ model Zone {
 
 enum ZoneType {
   STANDARD
+  PICKING     
+  DISPATCH    
   COLD
   FROZEN
   HAZMAT
   QUARANTINE
 }
+
+
+
 
 model Location {
   id          String   @id @default(uuid())
