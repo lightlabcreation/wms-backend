@@ -317,7 +317,7 @@ async function main() {
         address: faker.location.streetAddress() + ', ' + faker.location.city(),
         companyId: company.id,
         status: 'ACTIVE',
-        paymentTerms: faker.helpers.arrayElement(['Net 30', 'Net 60', 'COD']),
+        paymentTerms: "NET_30"   // ✅ ONLY THIS
       },
     });
     suppliers.push(supplier);
@@ -352,61 +352,61 @@ async function main() {
       const sku = `${brand.code}-${String(productIndex).padStart(4, '0')}`;
 
       // Single product
-      const product = await prisma.product.create({
-        data: {
-          sku,
-          name: `${brand.name} ${item.name}`,
-          description: `${brand.name} ${item.name} - Premium quality`,
-          barcode: `50${String(Math.floor(Math.random() * 100000000000)).padStart(11, '0')}`,
-          companyId: company.id,
-          brandId: brand.id,
-          type: 'SIMPLE',
-          status: 'ACTIVE',
-          length: 15,
-          width: 5,
-          height: 2,
-          weight: item.weight,
-          dimensionUnit: 'cm',
-          weightUnit: 'kg',
-          costPrice: item.cost,
-          sellingPrice: item.price,
-          currency: 'GBP',
-          isPerishable: true,
-          requiresBatch: true,
-          shelfLifeDays: 365,
-          images: [],
-        },
-      });
+     const product = await prisma.product.create({
+  data: {
+    sku,
+    name: `${brand.name} ${item.name}`,
+    description: `${brand.name} ${item.name} - Premium quality`,
+    barcode: `50${String(Math.floor(Math.random() * 100000000000)).padStart(11, '0')}`,
+    companyId: company.id,
+    brandId: brand.id,
+    type: 'SIMPLE',
+    status: 'ACTIVE',
+    length: 15,
+    width: 5,
+    height: 2,
+    weight: item.weight,
+    dimensionUnit: 'cm',
+    weightUnit: 'kg',
+    costPrice: item.cost,
+    sellingPrice: item.price,
+    currency: 'GBP',
+    isPerishable: true,
+    requiresBatch: true,
+    shelfLifeDays: 365
+  },
+});
+
       products.push(product);
 
       // Create 12-pack bundle for bars
       if (item.weight < 0.1) {
         const bundleSku = `${brand.code}-BDL-${String(productIndex).padStart(4, '0')}`;
         const bundle = await prisma.product.create({
-          data: {
-            sku: bundleSku,
-            name: `${brand.name} ${item.name} - 12 Pack`,
-            description: `${brand.name} ${item.name} - Case of 12`,
-            barcode: `50${String(Math.floor(Math.random() * 100000000000)).padStart(11, '0')}`,
-            companyId: company.id,
-            brandId: brand.id,
-            type: 'BUNDLE',
-            status: 'ACTIVE',
-            length: 30,
-            width: 20,
-            height: 10,
-            weight: item.weight * 12,
-            dimensionUnit: 'cm',
-            weightUnit: 'kg',
-            costPrice: item.cost * 12 * 0.95, // 5% bundle discount
-            sellingPrice: item.price * 12 * 0.90, // 10% bundle discount
-            currency: 'GBP',
-            isPerishable: true,
-            requiresBatch: true,
-            shelfLifeDays: 365,
-            images: [],
-          },
-        });
+  data: {
+    sku: bundleSku,
+    name: `${brand.name} ${item.name} - 12 Pack`,
+    description: `${brand.name} ${item.name} - Case of 12`,
+    barcode: `50${String(Math.floor(Math.random() * 100000000000)).padStart(11, '0')}`,
+    companyId: company.id,
+    brandId: brand.id,
+    type: 'BUNDLE',
+    status: 'ACTIVE',
+    length: 30,
+    width: 20,
+    height: 10,
+    weight: item.weight * 12,
+    dimensionUnit: 'cm',
+    weightUnit: 'kg',
+    costPrice: item.cost * 12 * 0.95,
+    sellingPrice: item.price * 12 * 0.90,
+    currency: 'GBP',
+    isPerishable: true,
+    requiresBatch: true,
+    shelfLifeDays: 365
+  },
+});
+
         bundleProducts.push(bundle);
 
         await prisma.bundleItem.create({
@@ -467,22 +467,22 @@ async function main() {
       const grossProfit = sellingPrice - totalCost;
       const profitMargin = sellingPrice > 0 ? (grossProfit / sellingPrice) * 100 : 0;
 
-      await prisma.channelPrice.create({
-        data: {
-          productId: product.id,
-          channelId: channel.id,
-          sellingPrice,
-          productCost: product.costPrice,
-          laborCost,
-          materialCost,
-          shippingCost,
-          channelFees: totalChannelFees,
-          totalCost,
-          grossProfit,
-          profitMargin,
-          isActive: true,
-        },
-      });
+    await prisma.channelPrice.create({
+  data: {
+    productId: product.id,
+    channelId: channel.id,
+    sellingPrice,
+    productCost: product.costPrice,
+    laborCost,
+    materialCost,
+    shippingCost,
+    totalCost,
+    grossProfit,
+    profitMargin,
+    isActive: true,
+  },
+});
+
       channelPriceCount++;
     }
   }
@@ -585,7 +585,7 @@ async function main() {
 
   // Create 30 days of sales orders
   console.log('🛒 Creating 30 days of sales order history...');
-  const orderStatuses = ['PENDING', 'CONFIRMED', 'ALLOCATED', 'PICKING', 'PACKED', 'SHIPPED', 'DELIVERED'];
+  const orderStatuses = ['PENDING', 'CONFIRMED', 'ALLOCATED', 'PICKING',  'PACKING', 'SHIPPED', 'DELIVERED'];
   let orderCount = 0;
 
   for (let daysAgo = 30; daysAgo >= 0; daysAgo--) {
@@ -637,7 +637,7 @@ async function main() {
       if (daysAgo > 7) {
         status = faker.helpers.arrayElement(['DELIVERED', 'SHIPPED', 'DELIVERED', 'DELIVERED']);
       } else if (daysAgo > 3) {
-        status = faker.helpers.arrayElement(['SHIPPED', 'PACKED', 'PICKING', 'DELIVERED']);
+        status = faker.helpers.arrayElement(['SHIPPED', 'PACKING', 'DELIVERED']);
       } else {
         status = faker.helpers.arrayElement(orderStatuses);
       }

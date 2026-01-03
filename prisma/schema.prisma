@@ -53,6 +53,22 @@ enum Role {
   MANAGER
 }
 
+
+
+
+
+
+
+enum ChannelType {
+ AMAZON_FBA
+  AMAZON_FBM
+  SHOPIFY
+  EBAY
+  TIKTOK
+  WHOLESALE
+}
+
+
 // Zoltan's Customizations: Location Types
 enum LocationType {
   PICK      // Fast-moving pick locations
@@ -676,6 +692,12 @@ enum CustomerType {
   B2B         // Business to Business (Wholesale)
 }
 
+
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model SalesOrder {
   id              String   @id @default(uuid())
   orderNumber     String   @unique
@@ -1096,6 +1118,15 @@ enum ClientStatus {
 // SUPPLIERS
 // ===================================
 
+
+enum PaymentTerms {
+  COD
+  NET_7
+  NET_15
+  NET_30
+  NET_60
+}
+
 model Supplier {
   id          String   @id @default(uuid())
   name        String
@@ -1105,6 +1136,9 @@ model Supplier {
   address     String?
   companyId   String
   company     Company  @relation(fields: [companyId], references: [id])
+  status    SupplierStatus @default(ACTIVE)
+  paymentTerms PaymentTerms  @default(COD)
+
 
   purchaseOrders PurchaseOrder[]
 
@@ -1328,14 +1362,7 @@ model SalesChannel {
   @@index([type])
 }
 
-enum ChannelType {
-  AMAZON_FBA
-  SHOPIFY
-  EBAY
-  DIRECT
-  WHOLESALE
-  CUSTOM
-}
+
 
 model ChannelPrice {
   id              String   @id @default(uuid())
